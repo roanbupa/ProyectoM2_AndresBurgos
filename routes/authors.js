@@ -1,43 +1,48 @@
 const express = require("express");
-
 const router = express.Router();
 
-// Datos en memoria
-let authors = [
-  {
-    id: 1,
-    name: "Ana García",
-    email: "ana@example.com",
-    bio: "Desarrolladora full-stack apasionada por Node.js",
-  },
-  {
-    id: 2,
-    name: "Carlos Ruiz",
-    email: "carlos@example.com",
-    bio: "Escritor técnico especializado en bases de datos",
-  },
-];
+const pool = require("../db/config");
 
-// GET - Obtener todos los autores
-router.get("/", (req, res) => {
-  res.json(authors);
-});
+// GET - Listar todos los autores
+router.get("/", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM authors ORDER BY id");
 
-// GET - Obtener autor por ID
-router.get("/:id", (req, res) => {
-  const author = authors.find((a) => a.id === parseInt(req.params.id));
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error obteniendo autores:", error);
 
-  if (!author) {
-    return res.status(404).json({
-      error: "Autor no encontrado",
+    res.status(500).json({
+      error: "Error obteniendo autores",
     });
   }
-
-  res.json(author);
 });
 
-// POST - Crear autor
-router.post("/", (req, res) => {
+// GET - Buscar autor por ID
+router.get("/:id", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM authors WHERE id = $1", [
+      req.params.id,
+    ]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        error: "Autor no encontrado",
+      });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Error obteniendo autor:", error);
+
+    res.status(500).json({
+      error: "Error obteniendo autor",
+    });
+  }
+});
+
+// POST - Agregar autor
+router.post("/", async (req, res) => {
   const { name, email, bio } = req.body;
 
   if (!name || !email) {
@@ -46,52 +51,79 @@ router.post("/", (req, res) => {
     });
   }
 
-  const newAuthor = {
-    id: authors.length + 1,
-    name,
-    email,
-    bio: bio || "",
-  };
+  try {
+    const result = await pool.query(
+      `INSERT INTO authors (name, email, bio)
+       VALUES ($1, $2, $3)
+       RETURNING *`,
+      [name, email, bio || null],
+    );
 
-  authors.push(newAuthor);
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error("Error creando autor:", error);
 
-  res.status(201).json(newAuthor);
-});
-
-// PUT - Actualizar autor
-router.put("/:id", (req, res) => {
-  const author = authors.find((a) => a.id === parseInt(req.params.id));
-
-  if (!author) {
-    return res.status(404).json({
-      error: "Autor no encontrado",
+    res.status(500).json({
+      error: "Error creando autor",
     });
   }
+});
 
+// PUT - Modificar autor
+router.put("/:id", async (req, res) => {
   const { name, email, bio } = req.body;
 
-  if (name) author.name = name;
-  if (email) author.email = email;
-  if (bio !== undefined) author.bio = bio;
+  try {
+    const result = await pool.query(
+      `UPDATE authors
+       SET
+         name = COALESCE($1, name),
+         email = COALESCE($2, email),
+         bio = COALESCE($3, bio)
+       WHERE id = $4
+       RETURNING *`,
+      [name, email, bio, req.params.id],
+    );
 
-  res.json(author);
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        error: "Autor no encontrado",
+      });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error("Error actualizando autor:", error);
+
+    res.status(500).json({
+      error: "Error actualizando autor",
+    });
+  }
 });
 
 // DELETE - Eliminar autor
-router.delete("/:id", (req, res) => {
-  const index = authors.findIndex((a) => a.id === parseInt(req.params.id));
+router.delete("/:id", async (req, res) => {
+  try {
+    const result = await pool.query("DELETE FROM authors WHERE id = $1", [
+      req.params.id,
+    ]);
 
-  if (index === -1) {
-    return res.status(404).json({
-      error: "Autor no encontrado",
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        error: "Autor no encontrado",
+      });
+    }
+
+    res.json({
+      message: "Autor eliminado correctamente",
+    });
+  } catch (error) {
+    console.error("Error eliminando autor:", error);
+
+    res.status(500).json({
+      error: "Error eliminando autor",
     });
   }
-
-  authors.splice(index, 1);
-
-  res.json({
-    message: "Autor eliminado correctamente",
-  });
 });
 
 module.exports = router;
