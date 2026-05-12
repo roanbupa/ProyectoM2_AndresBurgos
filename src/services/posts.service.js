@@ -27,17 +27,33 @@ const getById = async (id) => {
 
 // CREATE
 const create = async (title, content, author_id, published) => {
+  const authorsExists = await checkAuthorsExists(author_id);
+
+  if (!authorsExists) {
+    throw new Error("AUTHOR_NOT_FOUND");
+  }
+
   const result = await pool.query(
     `INSERT INTO posts (title, content, author_id, published)
      VALUES ($1, $2, $3, $4)
      RETURNING *`,
     [title, content, author_id, published || false],
   );
+
   return result.rows[0];
 };
 
 // UPDATE
 const update = async (id, title, content, author_id, published) => {
+  // Validar si el autor viene
+  if (author_id) {
+    const authorExists = await checkAuthorsExists(author_id);
+
+    if (!authorExists) {
+      throw new Error("AUTHOR_NOT_FOUND");
+    }
+  }
+
   const result = await pool.query(
     `UPDATE posts
      SET
@@ -56,6 +72,14 @@ const update = async (id, title, content, author_id, published) => {
 const remove = async (id) => {
   const result = await pool.query("DELETE FROM posts WHERE id = $1", [id]);
   return result.rowCount;
+};
+
+const checkAuthorsExists = async (authorId) => {
+  const result = await pool.query("SELECT id FROM authors WHERE id = $1", [
+    authorId,
+  ]);
+
+  return result.rows.length > 0;
 };
 
 module.exports = {
