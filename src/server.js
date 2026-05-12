@@ -1,13 +1,13 @@
 const express = require("express");
-
-const authorsRouter = require("./routes/authors");
-const postsRouter = require("./routes/posts");
 const pool = require("./db/config");
+
+const authorsRouter = require("./routes/authors.routes");
+const postsRouter = require("./routes/posts.routes");
 
 const app = express();
 const PORT = 3000;
 
-// Middleware para leer JSON
+// Middleware
 app.use(express.json());
 
 // Rutas
@@ -21,13 +21,14 @@ app.get("/", (req, res) => {
   });
 });
 
-// Manejo de rutas inexistentes
+// 404
 app.use((req, res) => {
   res.status(404).json({
     error: "Ruta no encontrada",
   });
 });
 
+// Conexión a DB
 pool
   .connect()
   .then(() => {
@@ -37,6 +38,7 @@ pool
     console.error("Error de conexión:", err);
   });
 
+// Server
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });

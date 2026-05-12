@@ -1,0 +1,9 @@
+const express = require("express");
+const router = express.Router();
+const controller = require("../controllers/authors.controller");
+
+router.get("/", controller.getAllAuthors);
+router.get("/:id", controller.getAuthorById);
+router.post("/", controller.createAuthor);
+
+module.exports = router;
