@@ -28,7 +28,7 @@ app.use((req, res) => {
   });
 });
 
-// Conexión a DB
+// DB
 pool
   .connect()
   .then(() => {
@@ -38,7 +38,11 @@ pool
     console.error("Error de conexión:", err);
   });
 
-// Server
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
-});
+// IMPORTANTE
+if (process.env.NODE_ENV !== "test") {
+  app.listen(PORT, () => {
+    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;

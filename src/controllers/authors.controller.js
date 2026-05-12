@@ -15,7 +15,7 @@ const getAuthorById = async (req, res) => {
     const data = await service.getAuthorById(req.params.id);
 
     if (!data) {
-      return res.status(400).json({ error: "Autor no encontrado" });
+      return res.status(404).json({ error: "Autor no encontrado" });
     }
 
     res.json(data);
