@@ -10,6 +10,16 @@ const getAllPosts = async (req, res) => {
   }
 };
 
+// GET by author
+const getPostsByAuthor = async (req, res) => {
+  try {
+    const data = await service.getByAuthor(req.params.authorId);
+    res.json(data);
+  } catch {
+    res.status(500).json({ error: "Error obteniendo posts del autor" });
+  }
+};
+
 // GET by ID
 const getPostById = async (req, res) => {
   try {
@@ -22,16 +32,6 @@ const getPostById = async (req, res) => {
     res.json(data);
   } catch {
     res.status(500).json({ error: "Error obteniendo post" });
-  }
-};
-
-// GET by author
-const getPostsByAuthor = async (req, res) => {
-  try {
-    const data = await service.getByAuthor(req.params.authorId);
-    res.json(data);
-  } catch {
-    res.status(500).json({ error: "Error obteniendo posts del autor" });
   }
 };
 
@@ -94,8 +94,8 @@ const deletePost = async (req, res) => {
 
 module.exports = {
   getAllPosts,
-  getPostById,
   getPostsByAuthor,
+  getPostById,
   createPost,
   updatePost,
   deletePost,

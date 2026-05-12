@@ -6,12 +6,6 @@ const getAll = async () => {
   return result.rows;
 };
 
-// GET by ID
-const getById = async (id) => {
-  const result = await pool.query("SELECT * FROM posts WHERE id = $1", [id]);
-  return result.rows[0];
-};
-
 // GET by author
 const getByAuthor = async (authorId) => {
   const result = await pool.query(
@@ -23,6 +17,12 @@ const getByAuthor = async (authorId) => {
     [authorId],
   );
   return result.rows;
+};
+
+// GET by ID
+const getById = async (id) => {
+  const result = await pool.query("SELECT * FROM posts WHERE id = $1", [id]);
+  return result.rows[0];
 };
 
 // CREATE
@@ -60,8 +60,8 @@ const remove = async (id) => {
 
 module.exports = {
   getAll,
-  getById,
   getByAuthor,
+  getById,
   create,
   update,
   remove,
