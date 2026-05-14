@@ -1,0 +1,145 @@
+openapi: 3.0.0
+info:
+  title: MiniBlog API
+  version: 1.0.0
+  description: API del proyecto MiniBlog
+
+servers:
+  - url: http://localhost:3000/
+
+paths:
+  /authors:
+    get:
+      summary: Obtener todos los autores
+      responses:
+        "200":
+          description: Lista de autores
+
+    post:
+      summary: Crear nuevo autores
+      tags:
+        - Authors
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthorsInput"
+      responses:
+        "201":
+          description: Autor agregado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Authors"
+
+        "400":
+          description: Datos inválidos
+
+  /authors/{id}:
+    get:
+      summary: Obtener autor por ID
+      tags:
+        - Authors
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Autor agregado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schema/Authors"
+
+        "404":
+          description: Autor no encontrado
+
+    put:
+      summary: Actualizar autor
+      tags:
+        - Authors
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthorsInput"
+
+      responses:
+        "200":
+          description: Autor actualizado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Authors"
+
+        "404":
+          description: Autor no encontrado
+
+    delete:
+      summary:
+      tags:
+        - Authors
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        "200":
+          description: Autor eliminado correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Autor eliminado exitosamente
+
+        "404":
+          description: Autor no encontrado
+
+  /posts:
+    get:
+      summary: Obtener todos los posts
+      responses:
+        "200":
+          description: Lista de posts
+
+components:
+  schemas:
+    Authors:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        bio:
+          type: string
+
+    AuthorsInput:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        bio:
+          type: string

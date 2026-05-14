@@ -4,11 +4,17 @@ const pool = require("./db/config");
 const authorsRouter = require("./routes/authors.routes");
 const postsRouter = require("./routes/posts.routes");
 
+const swaggerUi = require("swagger-ui-express");
+const YAML = require("yamljs");
+const swaggerDocument = YAML.load("./openapi.yaml");
+
 const app = express();
 const PORT = 3000;
 
 // Middleware
 app.use(express.json());
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Rutas
 app.use("/authors", authorsRouter);
