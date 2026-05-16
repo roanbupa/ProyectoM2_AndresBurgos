@@ -11,6 +11,8 @@ paths:
   /authors:
     get:
       summary: Obtener todos los autores
+      tags:
+        - Authors
       responses:
         "200":
           description: Lista de autores
@@ -49,11 +51,11 @@ paths:
             type: integer
       responses:
         "200":
-          description: Autor agregado
+          description: Autor encontrado
           content:
             application/json:
               schema:
-                $ref: "#/components/schema/Authors"
+                $ref: "#/components/schemas/Authors"
 
         "404":
           description: Autor no encontrado
@@ -88,7 +90,7 @@ paths:
           description: Autor no encontrado
 
     delete:
-      summary:
+      summary: Emilinar autor
       tags:
         - Authors
       parameters:
@@ -116,9 +118,121 @@ paths:
   /posts:
     get:
       summary: Obtener todos los posts
+      tags:
+        - Posts
       responses:
         "200":
           description: Lista de posts
+
+    post:
+      summary: Crear nuevo post
+      tags:
+        - Posts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostsInput"
+      responses:
+        "201":
+          description: Post agregado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Posts"
+
+  /posts/{id}:
+    get:
+      summary: Obtener post por ID
+      tags:
+        - Posts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Post encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Posts"
+
+    put:
+      summary: Actualizar post
+      tags:
+        - Posts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          shcema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            shcema:
+              $ref: "#/components/PostsInput"
+      responses:
+        "200":
+          description: Post actualizado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/Posts"
+        "404":
+          description: Post no encontrado
+
+    delete:
+      summary: Eliminar post
+      tags:
+        - Posts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Post eliminado correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Post eliminado exitosamente
+        "404":
+          description: Post no encontrado
+
+  /posts/author/{id}:
+    get:
+      summary: Buscar posts por autor
+      tags:
+        - Posts
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Lista de posts de un autor
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Posts"
+        "404":
+          description: Autor no encontrado
 
 components:
   schemas:
@@ -143,3 +257,29 @@ components:
           type: string
         bio:
           type: string
+
+    Posts:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        content:
+          type: string
+        author_id:
+          type: integer
+        published:
+          type: boolean
+
+    PostsInput:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        author_id:
+          type: integer
+        published:
+          type: boolean
