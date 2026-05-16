@@ -6,7 +6,11 @@ const getAllAuthors = async (req, res) => {
     const data = await service.getAll();
     res.json(data);
   } catch (error) {
-    res.status(500).json({ error: "Error obteniendo autores" });
+    console.error("ERROR GET AUTHORS:", error);
+    res.status(500).json({
+      error: "Error obteniendo autores",
+      details: error.message,
+    });
   }
 };
 
